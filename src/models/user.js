@@ -75,12 +75,23 @@ const userSchema = new mongoose.Schema({
         }
     },
     cardExpirationDate:{
-        type: Date,
+        type: String,
         validate(value) {
-            if (value < new Date()) {
-                throw new Error('Card expiration date is invalid')
+            // Comprobar formato MM/YY con regex
+            if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) {
+                throw new Error('Card expiration date format is invalid (use MM/YY)');
             }
-        }
+
+            // Validar que no sea una fecha pasada
+            const [month, year] = value.split('/').map(Number);
+            const now = new Date();
+            const currentYear = now.getFullYear() % 100; // últimos 2 dígitos
+            const currentMonth = now.getMonth() + 1; // enero es 0
+
+            if (year < currentYear || (year === currentYear && month < currentMonth)) {
+                throw new Error('Card expiration date is expired');
+            }
+    }
     },
     cardHolderName:{
         type: String,

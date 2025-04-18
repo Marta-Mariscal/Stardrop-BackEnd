@@ -5,7 +5,7 @@ const auth = require('../middleware/auth')
 //const { sendWelcomeEmail, sendCancelationEmail } = require('../emails/account')
 const router = new express.Router()
 
-router.post('/users', async (req, res) => {
+router.post('/users/signup', async (req, res) => {
     const user = new User(req.body)
 
     try {
@@ -24,7 +24,7 @@ router.post('/users/login', async (req, res) => {
         const token = await user.generateAuthToken()
         res.send({ user, token })
     } catch (e) {
-        res.status(400).send()
+        res.status(400).send({data: null, error: {status: 400, message: 'Invalid login credentials'}})
     }
 })
 
