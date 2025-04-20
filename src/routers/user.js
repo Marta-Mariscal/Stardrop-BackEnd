@@ -12,8 +12,9 @@ router.post('/users/signup', async (req, res) => {
         await user.save()
         //sendWelcomeEmail(user.email, user.name)
         const token = await user.generateAuthToken()
-        res.status(201).send({ user, token })
+        res.status(201).send({data: { user, token }, error: null})
     } catch (e) {
+        console.log(e)
         res.status(400).send(e)
     }
 })
@@ -22,7 +23,7 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         const token = await user.generateAuthToken()
-        res.send({ user, token })
+        res.send({data: { user, token }, error: null})
     } catch (e) {
         res.status(400).send({data: null, error: {status: 400, message: 'Invalid login credentials'}})
     }
@@ -67,7 +68,7 @@ router.patch('/users/me', auth, async (req, res) => {
     try {
         updates.forEach((update) => req.user[update] = req.body[update])
         await req.user.save()
-        res.send(req.user)
+        res.send({data: { user: req.user }, error: null})
     } catch (e) {
         res.status(400).send(e)
     }
@@ -77,7 +78,7 @@ router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove()
         //sendCancelationEmail(req.user.email, req.user.name)
-        res.send(req.user)
+        res.send({data: { user: req.user }, error: null})
     } catch (e) {
         res.status(500).send()
     }

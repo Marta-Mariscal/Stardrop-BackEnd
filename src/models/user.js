@@ -68,11 +68,11 @@ const userSchema = new mongoose.Schema({
     cardNumber: {
         type: String,
         trim: true,
-        validate(value) {
-            if (!validator.isCreditCard(value)) {
-                throw new Error('Card number is invalid')
-            }
-        }
+        // validate(value) {
+        //     if (!validator.isCreditCard(value)) {
+        //         throw new Error('Card number is invalid')
+        //     }
+        // }
     },
     cardExpirationDate:{
         type: String,
