@@ -77,7 +77,6 @@ const garmentSchema = new mongoose.Schema({
     timestamps: true
 })
 
-// esto en verda no me hace falta pa na los dos virtuals
 garmentSchema.virtual('orders', {
     ref: 'Order',
     localField: '_id',
