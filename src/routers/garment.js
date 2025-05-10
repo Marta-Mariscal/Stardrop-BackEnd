@@ -20,9 +20,76 @@ router.post('/garment', auth, async (req, res) => {
 })
 
 // Obtener todas las prendas del usuario autenticado
-router.get('/garment', auth, async (req, res) => {
+router.get('/garment/me', auth, async (req, res) => {
     try {
         const garments = await Garment.find({ owner: req.user._id })
+        res.send({ data: { garments }, error: null })
+    } catch (e) {
+        res.status(500).send({ data: null, error: { status: 500, message: 'Fetch garments failed', exception: e } })
+    }
+})
+
+router.get('/garment', auth, async (req, res) => {
+    const match = {}
+    const sort = {}
+
+    if (req.query.search) {
+        const regex = new RegExp(req.query.search, "i")
+        match.$or = [
+          { name: { $regex: regex } },
+          { description: { $regex: regex } },
+        ];
+    }
+
+    if (req.query.categories) {
+        const categories = req.query.categories.split(",").map(category => category.trim())
+        match.category = { $in: categories };
+    }
+
+    if (req.query.genders) {
+        const genders = req.query.genders.split(",").map(gender => gender.trim())
+        match.gender = { $in: genders };   
+    }
+
+    if (req.query.colors) {
+        const colors = req.query.colors.split(",").map(color => color.trim())
+        match.color = { $in: colors };
+    }
+
+    if (req.query.types) {
+        const types = req.query.type.split(",").map(type => type.trim())
+        match.type = { $in: types };
+    }
+
+    if (req.query.statuses) {
+        const statuses = req.query.statuses.split(",").map(status => status.trim())
+        match.status = { $in: statuses };
+    }
+
+    if (req.query.minPrice) {
+        match.price = { $gte: req.query.minPrice }
+    }
+    if (req.query.maxPrice) {
+        match.price = { ...match.price, $lte: req.query.maxPrice }
+    }
+
+    if (req.query.me) {
+        match.owner = req.user._id
+    } else {
+        match.owner = { $ne: req.user._id }
+    }
+
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(":")
+        sort[parts[0]] = parts[1] === "desc" ? -1 : 1
+    }
+
+    try {
+        const garments = await Garment.find(match)
+            .sort(sort)
+            .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+            .skip(req.query.skip ? parseInt(req.query.skip) : 0)
+        
         res.send({ data: { garments }, error: null })
     } catch (e) {
         res.status(500).send({ data: null, error: { status: 500, message: 'Fetch garments failed', exception: e } })
