@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const validator = require('validator');
 
 const garmentSchema = new mongoose.Schema({
     name: {
@@ -7,7 +8,7 @@ const garmentSchema = new mongoose.Schema({
         trim: true
     },
     description: {
-        type: Boolean,
+        type: String,
         default: false
     },
     size: {
@@ -16,11 +17,9 @@ const garmentSchema = new mongoose.Schema({
         trim: true
     },
     colors: [{
-        color: {
-            type: String,
-            enum: ['red', 'pink', 'purple', 'blue', 'green', 'yellow', 'orange', 'brown', 'black', 'white'],
-            required: true
-        }
+        type: String,
+        enum: ['red', 'pink', 'purple', 'blue', 'green', 'yellow', 'orange', 'brown', 'black', 'white'],
+        required: true
     }],
     price: {
         type: Number,

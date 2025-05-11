@@ -53,7 +53,7 @@ router.get('/garment', auth, async (req, res) => {
 
     if (req.query.colors) {
         const colors = req.query.colors.split(",").map(color => color.trim())
-        match.color = { $in: colors };
+        match.colors = { $in: colors };
     }
 
     if (req.query.types) {
@@ -61,9 +61,9 @@ router.get('/garment', auth, async (req, res) => {
         match.type = { $in: types };
     }
 
-    if (req.query.statuses) {
-        const statuses = req.query.statuses.split(",").map(status => status.trim())
-        match.status = { $in: statuses };
+    if (req.query.states) {
+        const states = req.query.states.split(",").map(status => status.trim())
+        match.status = { $in: states };
     }
 
     if (req.query.minPrice) {
@@ -89,20 +89,10 @@ router.get('/garment', auth, async (req, res) => {
             .sort(sort)
             .limit(req.query.limit ? parseInt(req.query.limit) : 10)
             .skip(req.query.skip ? parseInt(req.query.skip) : 0)
-        
+            .populate('owner', 'name')
         res.send({ data: { garments }, error: null })
     } catch (e) {
         res.status(500).send({ data: null, error: { status: 500, message: 'Fetch garments failed', exception: e } })
-    }
-})
-
-// Obtener todas las prendas (para propósitos de administración)
-router.get('/garment/allGarments', auth, async (req, res) => {
-    try {
-        const garments = await Garment.find({})
-        res.send({ data: { garments }, error: null })
-    } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: 'Fetch all garments failed', exception: e } })
     }
 })
 
