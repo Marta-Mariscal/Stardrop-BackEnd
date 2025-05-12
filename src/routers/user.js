@@ -40,6 +40,7 @@ router.post('/users/logout', auth, async (req, res) => {
     }
 })
 
+//postman
 router.post('/users/logoutAll', auth, async (req, res) => {
     try {
         req.user.tokens = []
@@ -55,6 +56,7 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 // ??????
+// postman
 router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
     const allowedUpdates = ['name', 'email', 'password', 'age']
@@ -73,6 +75,7 @@ router.patch('/users/me', auth, async (req, res) => {
     }
 })
 
+// postman
 router.delete('/users/me', auth, async (req, res) => {
     try {
         await req.user.remove()
@@ -95,6 +98,7 @@ const upload = multer({
     }
 })
 
+// postman
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
     const buffer = req.file.buffer
     req.user.avatar = buffer
@@ -104,12 +108,14 @@ router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) 
     res.status(400).send({data: null, error: {status: 400, message: 'Post avatar failed', exception: e}})
 })
 
+// postman
 router.delete('/users/me/avatar', auth, async (req, res) => {
     req.user.avatar = undefined
     await req.user.save()
     res.send({data: { message:'Delete avatar successful' }, error: null})
 })
 
+// postman
 router.get('/users/:id/avatar', async (req, res) => {
     try {
         const user = await User.findById(req.params.id)

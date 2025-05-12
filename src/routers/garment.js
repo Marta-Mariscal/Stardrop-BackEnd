@@ -4,7 +4,6 @@ const Garment = require('../models/garment')
 const auth = require('../middleware/auth')
 const router = new express.Router()
 
-// Crear prenda
 router.post('/garment', auth, async (req, res) => {
     const garment = new Garment({
         ...req.body,
@@ -16,16 +15,6 @@ router.post('/garment', auth, async (req, res) => {
         res.status(201).send({ data: { garment }, error: null })
     } catch (e) {
         res.status(400).send({ data: null, error: { status: 400, message: 'Create garment failed', exception: e } })
-    }
-})
-
-// Obtener todas las prendas del usuario autenticado
-router.get('/garment/me', auth, async (req, res) => {
-    try {
-        const garments = await Garment.find({ owner: req.user._id })
-        res.send({ data: { garments }, error: null })
-    } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: 'Fetch garments failed', exception: e } })
     }
 })
 
@@ -87,7 +76,7 @@ router.get('/garment', auth, async (req, res) => {
     try {
         const garments = await Garment.find(match)
             .sort(sort)
-            .limit(req.query.limit ? parseInt(req.query.limit) : 10)
+            .limit(req.query.limit ? parseInt(req.query.limit) : 20)
             .skip(req.query.skip ? parseInt(req.query.skip) : 0)
             .populate('owner', 'name')
         res.send({ data: { garments }, error: null })
@@ -96,7 +85,7 @@ router.get('/garment', auth, async (req, res) => {
     }
 })
 
-// Eliminar una prenda por ID
+//postman
 router.delete('/garment/:id', auth, async (req, res) => {
     try {
         const garment = await Garment.findOneAndDelete({ _id: req.params.id, owner: req.user._id })
@@ -111,7 +100,7 @@ router.delete('/garment/:id', auth, async (req, res) => {
     }
 })
 
-// Configuración de subida de imagen
+// POSTMAN Configuración de subida de imagen
 const upload = multer({
     limits: {
         fileSize: 1000000
@@ -125,7 +114,7 @@ const upload = multer({
     }
 })
 
-// Subir imagen a prenda
+// POSTMAN Subir imagen a prenda
 router.post('/garment/:id/image', auth, upload.single('image'), async (req, res) => {
     try {
         const garment = await Garment.findOne({ _id: req.params.id, owner: req.user._id })
@@ -144,7 +133,7 @@ router.post('/garment/:id/image', auth, upload.single('image'), async (req, res)
     res.status(400).send({ data: null, error: { status: 400, message: 'Multer error', exception: error.message } })
 })
 
-// Eliminar imagen de una prenda
+// POSTMAN Eliminar imagen de una prenda
 router.delete('/garment/:id/image', auth, async (req, res) => {
     try {
         const garment = await Garment.findOne({ _id: req.params.id, owner: req.user._id })
@@ -161,7 +150,7 @@ router.delete('/garment/:id/image', auth, async (req, res) => {
     }
 })
 
-// Obtener imagen de una prenda por ID
+// POSTMAN Obtener imagen de una prenda por ID
 router.get('/garment/:id/image', async (req, res) => {
     try {
         const garment = await Garment.findById(req.params.id)
