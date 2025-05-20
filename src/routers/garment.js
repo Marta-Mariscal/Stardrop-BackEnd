@@ -24,7 +24,7 @@ router.get('/garment/:id', auth, async (req, res) => {
     }
 
     try {
-        const garment = await Garment.findOne({ _id: req.params.id })
+        const garment = await Garment.findOne({ _id: req.params.id }).populate('owner', 'name')
 
         if (!garment) {
             return res.status(404).send({ data: null, error: { status: 404, message: 'Garment not found' } })
