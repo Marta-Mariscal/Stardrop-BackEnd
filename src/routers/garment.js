@@ -18,6 +18,24 @@ router.post('/garment', auth, async (req, res) => {
     }
 })
 
+router.get('/garment/:id', auth, async (req, res) => {
+    if (!req.params.id) {
+        return res.status(400).send({ data: null, error: { status: 400, message: 'Garment ID is required' } })
+    }
+
+    try {
+        const garment = await Garment.findOne({ _id: req.params.id })
+
+        if (!garment) {
+            return res.status(404).send({ data: null, error: { status: 404, message: 'Garment not found' } })
+        }
+
+        res.send({ data: { garment }, error: null })
+    } catch (e) {
+        res.status(500).send({ data: null, error: { status: 500, message: 'Fetch garment failed', exception: e } })
+    }
+})
+
 router.get('/garment', auth, async (req, res) => {
     const match = {}
     const sort = {}
