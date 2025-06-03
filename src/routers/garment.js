@@ -86,6 +86,10 @@ router.get('/garment', auth, async (req, res) => {
         match.owner = { $ne: req.user._id }
     }
 
+    if (req.query.garmentBase) {
+        match.garmentBase = req.query.garmentBase   
+    }
+
     if (req.query.sortBy) {
         const parts = req.query.sortBy.split(":")
         sort[parts[0]] = parts[1] === "desc" ? -1 : 1
