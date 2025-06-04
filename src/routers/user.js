@@ -1,7 +1,9 @@
 const express = require('express')
-const multer = require('multer')
+const fs = require("fs")
+const mime = require('mime-types')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
+const { upload } = require('../controller/upload')
 const router = new express.Router()
 
 router.post('/users/signup', async (req, res) => {
@@ -55,23 +57,22 @@ router.get('/users/me', auth, async (req, res) => {
     res.send({data: { user: req.user }, error: null})
 })
 
-// ??????
 // postman
-router.patch('/users/me', auth, async (req, res) => {
-    const updates = Object.keys(req.body)
-    const allowedUpdates = ['name', 'email', 'password', 'age']
-    const isValidOperation = updates.every((update) => allowedUpdates.includes(update))
+router.patch('/users/me', auth, upload, async (req, res) => {
+    const newUser = JSON.parse(req.body.user)
+    const updates = Object.keys(newUser)
 
-    if (!isValidOperation) {
-        return res.status(400).send({data: null, error: {status: 400, message: 'Invalid update', exception: e}})
+    if (req.file) {
+        updates.push("icon")
+        newUser.icon = req.file.path
     }
 
     try {
-        updates.forEach((update) => req.user[update] = req.body[update])
+        updates.forEach((update) => req.user[update] = newUser[update])
         await req.user.save()
         res.send({data: { user: req.user }, error: null})
     } catch (e) {
-        res.status(400).send({data: null, error: {status: 400, message: 'Update user failed', exception: e}})
+        res.status(400).send({data: null, error: {status: 400, message: e.message, exception: e}})
     }
 })
 
@@ -85,49 +86,23 @@ router.delete('/users/me', auth, async (req, res) => {
     }
 })
 
-const upload = multer({
-    limits: {
-        fileSize: 1000000
-    },
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-            return cb(new Error('Please upload an image'))
-        }
+router.get('/assets/:id/imgs/:imageName', async (req, res) => {
+    const _id = req.params.id
+    const imageName = req.params.imageName
 
-        cb(undefined, true)
-    }
-})
-
-// postman
-router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
-    const buffer = req.file.buffer
-    req.user.avatar = buffer
-    await req.user.save()
-    res.send({data: { message:'Post avatar successful' }, error: null})
-}, (e, req, res, next) => {
-    res.status(400).send({data: null, error: {status: 400, message: 'Post avatar failed', exception: e}})
-})
-
-// postman
-router.delete('/users/me/avatar', auth, async (req, res) => {
-    req.user.avatar = undefined
-    await req.user.save()
-    res.send({data: { message:'Delete avatar successful' }, error: null})
-})
-
-// postman
-router.get('/users/:id/avatar', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id)
+        const imagePath = `./assets/${_id}/imgs/${imageName}`
 
-        if (!user || !user.avatar) {
-            throw new Error()
+        if(fs.existsSync(imagePath)) {
+            const file = fs.createReadStream(imagePath)
+            const mimeType = mime.lookup(imagePath)
+            res.setHeader('Content-Type', mimeType)
+            file.pipe(res)
+        } else {
+            res.status(404).send({data: null, error: {status: 404, message: 'Image not found'}})
         }
-
-        res.set('Content-Type', 'image/png')
-        res.send({data: { user: user.avatar }, error: null})
     } catch (e) {
-        res.status(404).send({data: null, error: {status: 404, message: 'Avatar not found', exception: e}})
+        res.status(500).send({data: null, error: {status: 500, message: e.message, exception: e}})
     }
 })
 
