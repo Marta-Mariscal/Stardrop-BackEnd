@@ -32,7 +32,7 @@ router.post("/order", auth, async (req, res) => {
 
         await OrderItem.insertMany(items);
 
-        const output = await Order.findById(order._id).populate("owner", "name").populate("orderItems");
+        const output = await Order.findById(order._id).populate("owner", "name icon").populate("orderItems");
 
         res.status(201).send({ data: { order: output }, error: null });
     } catch (e) {
@@ -43,7 +43,7 @@ router.post("/order", auth, async (req, res) => {
 router.get("/order", auth, async (req, res) => {
     try {
         const orders = await Order.find({ owner: req.user._id })
-            .populate("owner", "name")
+            .populate("owner", "name icon")
             .populate({
                 path: "orderItems",
                 model: "OrderItem",
