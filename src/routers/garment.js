@@ -31,7 +31,7 @@ router.get("/garment/:id", auth, async (req, res) => {
     }
 
     try {
-        const garment = await Garment.findOne({ _id: req.params.id }).populate("owner", "name");
+        const garment = await Garment.findOne({ _id: req.params.id }).populate("owner", "name icon");
 
         if (!garment) {
             return res.status(404).send({ data: null, error: { status: 404, message: "Garment not found" } });
@@ -114,8 +114,8 @@ router.get("/garment", auth, async (req, res) => {
 //postman
 router.delete("/garment/:id", auth, async (req, res) => {
     try {
-        const garment = await Garment.findOneAndDelete({ _id: req.params.id, owner: req.user._id });
-
+        const garment = await Garment.findOneAndDelete({ _id: req.params.id});
+        
         if (!garment) {
             return res.status(404).send({ data: null, error: { status: 404, message: "Garment not found" } });
         }
