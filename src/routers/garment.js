@@ -104,7 +104,7 @@ router.get("/garment", auth, async (req, res) => {
             .sort(sort)
             .limit(req.query.limit ? parseInt(req.query.limit) : 20)
             .skip(req.query.skip ? parseInt(req.query.skip) : 0)
-            .populate("owner", "name");
+            .populate("owner", "name icon");
         res.send({ data: { garments }, error: null });
     } catch (e) {
         res.status(500).send({ data: null, error: { status: 500, message: "Fetch garments failed", exception: e } });

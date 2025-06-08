@@ -33,6 +33,9 @@ const orderItemSchema = new mongoose.Schema(
     }
 );
 
+orderItemSchema.set("toObject", { virtuals: true });
+orderItemSchema.set("toJSON", { virtuals: true });
+
 const OrderItem = mongoose.model("OrderItem", orderItemSchema);
 
 module.exports = OrderItem;

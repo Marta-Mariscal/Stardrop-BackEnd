@@ -204,12 +204,8 @@ userSchema.pre("save", async function (next) {
     next();
 });
 
-// TODO: Delete user garments when user is removed
-// userSchema.pre('remove', async function (next) {
-//     const user = this
-//     await Garment.deleteMany({ owner: user._id })
-//     next()
-// })
+userSchema.set("toObject", { virtuals: true });
+userSchema.set("toJSON", { virtuals: true });
 
 const User = mongoose.model("User", userSchema);
 

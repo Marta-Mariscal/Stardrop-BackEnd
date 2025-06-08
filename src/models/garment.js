@@ -114,6 +114,10 @@ garmentSchema.methods.toJSON = function () {
         garmentObject.image = `${BASE_URL}${garmentObject.image}`;
     }
 
+    if (garmentObject?.owner?.icon) {
+        garmentObject.owner.icon = `${BASE_URL}${garmentObject.owner.icon}`;
+    }
+
     return garmentObject;
 };
 
@@ -126,6 +130,9 @@ garmentSchema.pre("save", async function (next) {
 
     next();
 });
+
+garmentSchema.set("toObject", { virtuals: true });
+garmentSchema.set("toJSON", { virtuals: true });
 
 const Garment = mongoose.model("Garment", garmentSchema);
 

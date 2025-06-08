@@ -19,6 +19,9 @@ const wishlistSchema = new mongoose.Schema(
     }
 );
 
+wishlistSchema.set("toObject", { virtuals: true });
+wishlistSchema.set("toJSON", { virtuals: true });
+
 const Wishlist = mongoose.model("Wishlist", wishlistSchema);
 
 module.exports = Wishlist;
