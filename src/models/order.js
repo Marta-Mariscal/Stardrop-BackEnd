@@ -29,6 +29,9 @@ orderSchema.virtual("orderItems", {
     foreignField: "order"
 });
 
+orderSchema.set("toObject", { virtuals: true });
+orderSchema.set("toJSON", { virtuals: true });
+
 const Order = mongoose.model("Order", orderSchema);
 
 module.exports = Order;

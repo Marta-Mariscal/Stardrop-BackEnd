@@ -21,17 +21,40 @@ router.post("/order", auth, async (req, res) => {
     try {
         await order.save();
 
-        const items = orderItems.map(item => new OrderItem({
-            ...item,
-            garment: item.base._id,
-            order: order._id
-        }));
+        const items = orderItems.map(
+            (item) =>
+                new OrderItem({
+                    ...item,
+                    garment: item.base._id,
+                    order: order._id
+                })
+        );
 
         await OrderItem.insertMany(items);
 
         const output = await Order.findById(order._id).populate("owner", "name").populate("orderItems");
 
         res.status(201).send({ data: { order: output }, error: null });
+    } catch (e) {
+        res.status(400).send({ data: null, error: { status: 400, message: e.message, exception: e } });
+    }
+});
+
+router.get("/order", auth, async (req, res) => {
+    try {
+        const orders = await Order.find({ owner: req.user._id })
+            .populate("owner", "name")
+            .populate({
+                path: "orderItems",
+                model: "OrderItem",
+                populate: {
+                    path: "garment",
+                    model: "Garment"
+                }
+            })
+            .sort({ createdAt: -1 });
+
+        res.status(200).send({ data: { orders }, error: null });
     } catch (e) {
         res.status(400).send({ data: null, error: { status: 400, message: e.message, exception: e } });
     }
