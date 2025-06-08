@@ -110,11 +110,11 @@ garmentSchema.methods.toJSON = function () {
     const garment = this;
     const garmentObject = garment.toObject();
 
-    if (garmentObject.image) {
+    if (garmentObject.image && !garmentObject.image.startsWith(BASE_URL)) {
         garmentObject.image = `${BASE_URL}${garmentObject.image}`;
     }
 
-    if (garmentObject?.owner?.icon) {
+    if (garmentObject?.owner?.icon && !garmentObject.owner.icon.startsWith(BASE_URL)) {
         garmentObject.owner.icon = `${BASE_URL}${garmentObject.owner.icon}`;
     }
 

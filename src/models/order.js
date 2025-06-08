@@ -35,8 +35,20 @@ orderSchema.methods.toJSON = function () {
     const order = this;
     const orderObject = order.toObject();
 
-    if (orderObject?.owner?.icon) {
+    if (orderObject?.owner?.icon && !orderObject.owner.icon.startsWith(BASE_URL)) {
         orderObject.owner.icon = `${BASE_URL}${orderObject.owner.icon}`;
+    }
+
+    if (orderObject?.orderItems?.length) {
+        orderObject.orderItems = orderObject.orderItems.map(item => {
+            if (item?.garment?.image && !item.garment.image.startsWith(BASE_URL)) {
+                item.garment.image = `${BASE_URL}${item.garment.image}`;
+            }
+            if (item?.garment?.owner?.icon && !item.garment.owner.icon.startsWith(BASE_URL)) {
+                item.garment.owner.icon = `${BASE_URL}${item.garment.owner.icon}`;
+            }
+            return item;
+        });
     }
 
     return orderObject;

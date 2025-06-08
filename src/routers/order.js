@@ -49,7 +49,12 @@ router.get("/order", auth, async (req, res) => {
                 model: "OrderItem",
                 populate: {
                     path: "garment",
-                    model: "Garment"
+                    model: "Garment",
+                    populate: {
+                        path: "owner",
+                        model: "User",
+                        select: "name icon"
+                    }
                 }
             })
             .sort({ createdAt: -1 });

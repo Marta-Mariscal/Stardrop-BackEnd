@@ -154,7 +154,7 @@ userSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
 
-    if (userObject.icon) {
+    if (userObject.icon && !userObject.icon.startsWith(BASE_URL)) {
         userObject.icon = `${BASE_URL}${userObject.icon}`;
     }
 
