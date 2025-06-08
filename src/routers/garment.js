@@ -2,11 +2,18 @@ const express = require('express')
 const multer = require('multer')
 const Garment = require('../models/garment')
 const auth = require('../middleware/auth')
+const upload = require('../controller/upload')
 const router = new express.Router()
 
-router.post('/garment', auth, async (req, res) => {
+router.post('/garment', auth, upload.single('image'), async (req, res) => {
+    const garmentData = JSON.parse(req.body.garment)
+
+    if (req.file) {
+        garmentData.image = req.file.path
+    }
+
     const garment = new Garment({
-        ...req.body,
+        ...garmentData,
         owner: req.user._id
     })
 
@@ -14,7 +21,7 @@ router.post('/garment', auth, async (req, res) => {
         await garment.save()
         res.status(201).send({ data: { garment }, error: null })
     } catch (e) {
-        res.status(400).send({ data: null, error: { status: 400, message: 'Create garment failed', exception: e } })
+        res.status(400).send({ data: null, error: { status: 400, message: e.message, exception: e } })
     }
 })
 
@@ -119,73 +126,6 @@ router.delete('/garment/:id', auth, async (req, res) => {
         res.send({ data: { garment }, error: null })
     } catch (e) {
         res.status(500).send({ data: null, error: { status: 500, message: 'Delete garment failed', exception: e } })
-    }
-})
-
-// POSTMAN Configuración de subida de imagen
-const upload = multer({
-    limits: {
-        fileSize: 1000000
-    },
-    fileFilter(req, file, cb) {
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
-            return cb(new Error('Please upload an image'))
-        }
-
-        cb(undefined, true)
-    }
-})
-
-// POSTMAN Subir imagen a prenda
-router.post('/garment/:id/image', auth, upload.single('image'), async (req, res) => {
-    try {
-        const garment = await Garment.findOne({ _id: req.params.id, owner: req.user._id })
-
-        if (!garment) {
-            return res.status(404).send({ data: null, error: { status: 404, message: 'Garment not found' } })
-        }
-
-        garment.image = req.file.buffer.toString('base64') // guardado como string base64
-        await garment.save()
-        res.send({ data: { message: 'Image uploaded successfully' }, error: null })
-    } catch (e) {
-        res.status(400).send({ data: null, error: { status: 400, message: 'Image upload failed', exception: e } })
-    }
-}, (error, req, res, next) => {
-    res.status(400).send({ data: null, error: { status: 400, message: 'Multer error', exception: error.message } })
-})
-
-// POSTMAN Eliminar imagen de una prenda
-router.delete('/garment/:id/image', auth, async (req, res) => {
-    try {
-        const garment = await Garment.findOne({ _id: req.params.id, owner: req.user._id })
-
-        if (!garment) {
-            return res.status(404).send({ data: null, error: { status: 404, message: 'Garment not found' } })
-        }
-
-        garment.image = undefined
-        await garment.save()
-        res.send({ data: { message: 'Image deleted successfully' }, error: null })
-    } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: 'Delete image failed', exception: e } })
-    }
-})
-
-// POSTMAN Obtener imagen de una prenda por ID
-router.get('/garment/:id/image', async (req, res) => {
-    try {
-        const garment = await Garment.findById(req.params.id)
-
-        if (!garment || !garment.image) {
-            throw new Error('No image found')
-        }
-
-        const img = Buffer.from(garment.image, 'base64')
-        res.set('Content-Type', 'image/png')
-        res.send(img)
-    } catch (e) {
-        res.status(404).send({ data: null, error: { status: 404, message: 'Image not found', exception: e } })
     }
 })
 
