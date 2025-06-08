@@ -1,5 +1,7 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
+const mongoose = require("mongoose")
+const validator = require("validator")
+
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000/"
 
 const garmentSchema = new mongoose.Schema(
     {
@@ -67,6 +69,10 @@ const garmentSchema = new mongoose.Schema(
             type: String,
             enum: ["brand-new", "like-new", "used", "fair-condition", "damaged"]
         },
+        soldOut: {
+            type: Boolean,
+            default: false
+        },
         garmentBase: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Garment"
@@ -100,6 +106,27 @@ garmentSchema.virtual("wishlist", {
     foreignField: "garments"
 });
 
-const Garment = mongoose.model("Garment", garmentSchema);
+garmentSchema.methods.toJSON = function () {
+    const garment = this
+    const garmentObject = garment.toObject()
 
-module.exports = Garment;
+    if (garmentObject.image) {
+        garmentObject.image = `${BASE_URL}${garmentObject.image}`
+    }
+
+    return garmentObject
+}
+
+garmentSchema.pre('save', async function (next) {
+    const garment = this
+
+    if (garment.image && garment.image.startsWith(BASE_URL)) {
+        garment.image = garment.image.replace(BASE_URL, '')
+    }
+
+    next()
+})
+
+const Garment = mongoose.model("Garment", garmentSchema)
+
+module.exports = Garment

@@ -3,7 +3,7 @@ const validator = require('validator')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const base_url = process.env.BASE_URL || "http://localhost:3000/";
+const BASE_URL = process.env.BASE_URL || "http://localhost:3000/"
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -150,7 +150,7 @@ userSchema.methods.toJSON = function () {
     const userObject = user.toObject()
 
     if (userObject.icon) {
-        userObject.icon = `${base_url}${userObject.icon}`;
+        userObject.icon = `${BASE_URL}${userObject.icon}`
     }
 
     delete userObject.password
@@ -192,8 +192,8 @@ userSchema.pre('save', async function (next) {
         user.password = await bcrypt.hash(user.password, 8)
     }
 
-    if (user.icon && user.icon.startsWith(base_url)) {
-        user.icon = user.icon.replace(base_url, '')
+    if (user.icon && user.icon.startsWith(BASE_URL)) {
+        user.icon = user.icon.replace(BASE_URL, '')
     }
 
     next()

@@ -11,9 +11,9 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: Date.now
     },
-    garments: [{
+    orderItems: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Garment'
+        ref: 'OrderItem'
     }]
 }, {
     timestamps: true

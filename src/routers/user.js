@@ -3,7 +3,7 @@ const fs = require("fs")
 const mime = require('mime-types')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
-const { upload } = require('../controller/upload')
+const upload = require('../controller/upload')
 const router = new express.Router()
 
 router.post('/users/signup', async (req, res) => {
@@ -58,7 +58,7 @@ router.get('/users/me', auth, async (req, res) => {
 })
 
 // postman
-router.patch('/users/me', auth, upload, async (req, res) => {
+router.patch('/users/me', auth, upload.single("icon"), async (req, res) => {
     const newUser = JSON.parse(req.body.user)
     const updates = Object.keys(newUser)
 
