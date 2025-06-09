@@ -12,7 +12,10 @@ router.post("/users/signup", async (req, res) => {
     try {
         await user.save();
         const token = await user.generateAuthToken();
-        await user.generateWishlist();
+
+        if (user.type === "customer") {
+            await user.generateWishlist();
+        }
 
         res.status(201).send({ data: { user, token }, error: null });
     } catch (e) {
