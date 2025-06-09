@@ -37,9 +37,10 @@ router.get("/garment/:id", auth, async (req, res) => {
             return res.status(404).send({ data: null, error: { status: 404, message: "Garment not found" } });
         }
 
-        res.send({ data: { garment }, error: null });
+        const output = await garment.isWishlisted(req.user._id);
+        res.send({ data: { garment: output }, error: null });
     } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: "Fetch garment failed", exception: e } });
+        res.status(500).send({ data: null, error: { status: 500, message: e.message, exception: e } });
     }
 });
 
@@ -114,8 +115,8 @@ router.get("/garment", auth, async (req, res) => {
 //postman
 router.delete("/garment/:id", auth, async (req, res) => {
     try {
-        const garment = await Garment.findOneAndDelete({ _id: req.params.id});
-        
+        const garment = await Garment.findOneAndDelete({ _id: req.params.id });
+
         if (!garment) {
             return res.status(404).send({ data: null, error: { status: 404, message: "Garment not found" } });
         }
