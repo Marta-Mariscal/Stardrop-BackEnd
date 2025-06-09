@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Wishlist = require("./wishlist");
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000/";
 
@@ -172,6 +173,16 @@ userSchema.methods.generateAuthToken = async function () {
     await user.save();
 
     return token;
+};
+
+userSchema.methods.generateWishlist = async function () {
+    const wishlist = new Wishlist({
+        owner: this._id
+    });
+
+    await wishlist.save();
+
+    return wishlist;
 };
 
 userSchema.statics.findByCredentials = async (email, password) => {
