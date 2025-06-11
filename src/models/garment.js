@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const Wishlist = require("./wishlist");
 
 const BASE_URL = process.env.BASE_URL || "http://localhost:3000/";
 
@@ -106,7 +107,22 @@ garmentSchema.virtual("wishlist", {
     foreignField: "garments"
 });
 
+garmentSchema.methods.isWishlisted = async function (userId) {
+    const garment = this;
+    const garmentObject = garment.parseImages();
+
+    const wishlist = await Wishlist.findOne({ owner: userId });
+    const isWishlisted = wishlist && wishlist.garments?.some((item) => item._id.toString() === garmentObject._id.toString());
+
+    return { ...garmentObject, isWishlisted };
+};
+
 garmentSchema.methods.toJSON = function () {
+    const garment = this;
+    return garment.parseImages();
+};
+
+garmentSchema.methods.parseImages = function () {
     const garment = this;
     const garmentObject = garment.toObject();
 
