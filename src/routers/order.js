@@ -1,6 +1,7 @@
 const express = require("express");
 const Order = require("../models/order");
 const OrderItem = require("../models/orderitem");
+const Garment = require("../models/garment");
 const auth = require("../middleware/auth");
 const router = new express.Router();
 
@@ -13,12 +14,12 @@ router.post("/order", auth, async (req, res) => {
 
     const totalPrice = orderItems.reduce((total, item) => total + item.unitPrice * item.quantity, 0);
 
-    const order = new Order({
-        owner: req.user._id,
-        totalPrice
-    });
-
     try {
+        const order = new Order({
+            owner: req.user._id,
+            totalPrice
+        });
+
         await order.save();
 
         const items = orderItems.map(
@@ -29,6 +30,8 @@ router.post("/order", auth, async (req, res) => {
                     order: order._id
                 })
         );
+
+        await Garment.updateMany({ _id: { $in: orderItems.map((item) => item.base._id) }, type: "second-hand" }, { $set: { soldOut: true } });
 
         await OrderItem.insertMany(items);
 
