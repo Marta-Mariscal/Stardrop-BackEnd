@@ -112,19 +112,4 @@ router.get("/garment", auth, async (req, res) => {
     }
 });
 
-//postman
-router.delete("/garment/:id", auth, async (req, res) => {
-    try {
-        const garment = await Garment.findOneAndDelete({ _id: req.params.id });
-
-        if (!garment) {
-            return res.status(404).send({ data: null, error: { status: 404, message: "Garment not found" } });
-        }
-
-        res.send({ data: { garment }, error: null });
-    } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: "Delete garment failed", exception: e } });
-    }
-});
-
 module.exports = router;

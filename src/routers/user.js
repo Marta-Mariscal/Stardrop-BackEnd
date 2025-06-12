@@ -47,22 +47,10 @@ router.post("/users/logout", auth, async (req, res) => {
     }
 });
 
-//postman
-router.post("/users/logoutAll", auth, async (req, res) => {
-    try {
-        req.user.tokens = [];
-        await req.user.save();
-        res.send({ data: { message: "Logout all successful" }, error: null });
-    } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: "Logout All failed", exception: e } });
-    }
-});
-
 router.get("/users/me", auth, async (req, res) => {
     res.send({ data: { user: req.user }, error: null });
 });
 
-// postman
 router.patch("/users/me", auth, upload.single("icon"), async (req, res) => {
     const newUser = JSON.parse(req.body.user);
     const updates = Object.keys(newUser);
@@ -78,16 +66,6 @@ router.patch("/users/me", auth, upload.single("icon"), async (req, res) => {
         res.send({ data: { user: req.user }, error: null });
     } catch (e) {
         res.status(400).send({ data: null, error: { status: 400, message: e.message, exception: e } });
-    }
-});
-
-// postman
-router.delete("/users/me", auth, async (req, res) => {
-    try {
-        await req.user.remove();
-        res.send({ data: { user: req.user }, error: null });
-    } catch (e) {
-        res.status(500).send({ data: null, error: { status: 500, message: "Delete user failed", exception: e } });
     }
 });
 
