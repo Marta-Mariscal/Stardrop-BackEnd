@@ -103,7 +103,7 @@ router.get("/garment", auth, async (req, res) => {
     try {
         const garments = await Garment.find(match)
             .sort(sort)
-            .limit(req.query.limit ? parseInt(req.query.limit) : 20)
+            .limit(req.query.limit ? parseInt(req.query.limit) : 0)
             .skip(req.query.skip ? parseInt(req.query.skip) : 0)
             .populate("owner", "name icon");
         res.send({ data: { garments }, error: null });
